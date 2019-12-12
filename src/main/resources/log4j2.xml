@@ -1,0 +1,63 @@
+<Configuration status="WARN" monitorInterval="300" packages="cn.mastercom.cat">
+    <properties>
+        <property name="MtnoWebRoot" >${sys:user.dir}/logs</property>
+        <property name="INFO_FILE">zlflovemm_log</property>
+        <property name="ERROR_FILE">zlflovemm__error</property>
+    </properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="%d{HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+        </Console>
+
+        <RollingRandomAccessFile name="infolog"
+                                 fileName="${MtnoWebRoot}/${INFO_FILE}.log"
+                                 filePattern="${MtnoWebRoot}/${INFO_FILE}-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout
+                    pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] [%X{sessionID}] [%X{imei}] %-5level %logger{36} - %msg%n" />
+            <!--  -->
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="2MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="1000">
+                <Delete basePath="${MtnoWebRoot}" maxDepth="1">
+                    <IfFileName glob="${INFO_FILE}*.log" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+        <RollingRandomAccessFile name="errorlog"
+                                 fileName="${MtnoWebRoot}/${ERROR_FILE}.log"
+                                 filePattern="${MtnoWebRoot}/${ERROR_FILE}-%d{yyyy-MM-dd}-%i.log">
+            <PatternLayout
+                    pattern="%d{yyyy-MM-dd HH:mm:ss.SSS} [%t] %-5level %logger{36} - %msg%n" />
+            <Policies>
+                <TimeBasedTriggeringPolicy interval="1" modulate="true" />
+                <SizeBasedTriggeringPolicy size="200MB" />
+            </Policies>
+            <DefaultRolloverStrategy max="1000">
+                <Delete basePath="${MtnoWebRoot}" maxDepth="1">
+                    <IfFileName glob="${INFO_FILE}*.log" />
+                    <IfLastModified age="30d" />
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingRandomAccessFile>
+
+
+        <Async name="Async">
+            <AppenderRef ref="infolog"/>
+            <AppenderRef ref="errorlog"/>
+        </Async>
+    </Appenders>
+
+    <Loggers>
+
+        <asyncRoot level="INFO">
+            <AppenderRef ref="infolog"/>
+            <AppenderRef ref="errorlog" level="error"/>
+            <AppenderRef ref="Console" />
+        </asyncRoot>
+    </Loggers>
+</Configuration>
